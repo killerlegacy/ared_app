@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Property</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Add New Property</h1>
+        <form action="/admin/add_property" method="POST">
+            <label for="property_name">Property Name</label>
+            <input type="text" id="property_name" name="property_name" placeholder="Enter property name" required>
+            
+            <label for="unit_no">Unit No</label>
+            <input type="text" id="unit_no" name="unit_no" placeholder="Enter Unit no" required>
+
+            <label for="bedrooms">Bedrooms</label>
+            <input type="text" id="bedrooms" name="bedrooms" placeholder="Number of bedrooms" required>
+
+            <label for="type">Type</label>
+            <input type="text" id="type" name="type" placeholder="FF/UF/SF" required>
+
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" placeholder="Enter location" required>
+                      
+            <label for="rent_price">Rent Price</label>
+            <input type="number" id="rent_price" name="rent_price" placeholder="Rent price" required>
+
+            <label for="company_name">Company Name</label>
+            <input type="text" id="company_name" name="company_name" placeholder="Enter Company Name" required>
+            
+            <label for="status">Status</label>
+            <select id="status" name="status" required>
+                <option value="Available">Available</option>
+                <option value="Rented">Rented</option>
+            </select>
+            
+            <button type="submit">Add Property</button>
+        </form>
+        <a href="/admin" class="btn">Back to Manage Properties</a>
+    </div>
+</body>
+</html>

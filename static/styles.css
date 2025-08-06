@@ -1,0 +1,214 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+.container {
+    width: 90%;
+    margin: 20px auto;
+}
+
+h1, h2 {
+    text-align: center;
+    color: #343a40;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .nav-buttons {
+        flex-direction: column; /* Stack buttons vertically */
+    }
+
+    .nav-buttons .btn {
+        margin: 10px 0; /* Add margin for vertical spacing */
+        width: 100%; /* Full width on mobile */
+    }
+
+    table {
+        display: block; /* Make table scrollable */
+        overflow-x: auto;
+        white-space: nowrap; /* Prevent text wrapping */
+    }
+
+    form {
+        padding: 10px; /* Reduce padding on mobile */
+    }
+
+    form input, form select, form button {
+        font-size: 14px; /* Adjust font size for smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    h1, h2 {
+        font-size: 1.5em; /* Adjust heading size for small screens */
+    }
+
+    .flash {
+        font-size: 14px; /* Adjust flash message font size */
+    }
+}
+
+.container {
+    width: 90%;
+    margin: 20px auto;
+}
+
+h1, h2 {
+    text-align: center;
+    color: #343a40;
+}
+
+/* Navigation Styles */
+.nav-buttons {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.nav-buttons .btn {
+    text-decoration: none;
+    margin: 0 10px;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.nav-buttons .btn:hover {
+    background-color: #0056b3;
+}
+
+.nav-buttons .btn-danger {
+    background-color: #dc3545;
+}
+
+.nav-buttons .btn-danger:hover {
+    background-color: #bd2130;
+}
+
+td .btn {
+    margin: 0;
+    padding: 4px 8px; /* Adjust padding for smaller buttons */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Table Styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+    background-color: rgb(253, 253, 253);
+    border: 1px solid #ddd;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+table th {
+    background-color: #343a40;
+    color: white;
+    text-transform: uppercase;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+table tr:nth-child(even) {
+    background-color: #f1f1f1;
+}
+
+table tr:nth-child(odd) {
+    background-color: white;
+}
+
+/* Ensure status-specific colors override all row styles */
+table td.status-vacant {
+    background-color: white !important; /* Override alternating colors */
+}
+
+table td.status-booked {
+    background-color: #fed551 !important; /* Override alternating colors */
+    border: 2px solid rgb(255, 255, 255);
+    color: white !important;
+}
+
+table td.status-hold {
+    background-color: #af6aff !important; /* Override alternating colors */
+    border: 2px solid rgb(255, 255, 255);
+    color: white !important;
+}
+
+table td.status-contracted {
+    background-color: #6ef58e !important; /* Override alternating colors */
+    border: 2px solid rgb(255, 255, 255);
+    color: white !important;
+}
+
+/* Form Styles */
+form {
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+form input, form select, form button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+form button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #0056b3;
+}
+
+/* Flash Messages */
+.flash {
+    margin: 20px auto;
+    padding: 15px;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.flash.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}

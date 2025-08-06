@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login-form.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+
+    <title>Anaya Real Estate</title>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Anaya Real Estate Logo" class="logo">
+            <h1 class="company-name">Anaya Real Estate Development</h1>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <form action="/login" method="POST">
+            <div class="field">
+                <i class="fa fa-envelope"></i>
+                <input type="email" id="email" name="email" placeholder="Email" required>
+            </div>
+            <div class="field">
+                <i class="fa fa-lock"></i>
+                <input type="password" id="password" name="password" placeholder="Password" required>
+            </div>
+           
+            <div class="login">
+                <button type="submit">Login</button>
+            </div>
+            
+        </form>
+    </div>
+    <style>
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header .logo {
+            width: 100px;
+            height: auto;
+        }
+
+        .header .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            background-color: #202020;
+        }
+
+        .title h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+            text-align: center;
+            color: #fcfafa;
+        }
+    </style>
+</body>
+</html>
