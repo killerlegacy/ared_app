@@ -37,15 +37,29 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def company_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if session.get('role') != 'developer':
+            flash('You do not have permission to access this page.', 'error')
+            return redirect(url_for('dashboard'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 # Routes
 
 @app.route('/')
-
 def index():
-    # Redirect based on login status
+    # Redirect based on login status and role
     if 'logged_in' in session:
-        return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
+        if session.get('role') == 'admin':
+            return redirect(url_for('admin_dashboard'))
+        elif session.get('role') == 'developer':
+            return redirect(url_for('company_dashboard'))
+        else:
+            return redirect(url_for('dashboard'))
+    else:
+        return redirect(url_for('login'))
 
 #Login
 @app.route('/login', methods=['GET', 'POST'])
@@ -69,6 +83,8 @@ def login():
 
                     if user['role'] == 'admin':
                         return redirect(url_for('admin_dashboard'))
+                    elif user['role'] == 'developer':
+                        return redirect(url_for('company_dashboard'))
                     else:
                         return redirect(url_for('dashboard'))
                 else:
@@ -166,6 +182,7 @@ def dashboard():
         total_pages=total_pages,
         current_page=page
     )
+
 
 
 @app.route('/admin')
@@ -325,6 +342,92 @@ def delete_property_inline(property_id):
     except Exception as e:
         print(f"Error deleting property: {e}")
         return jsonify({'success': False, 'message': str(e)}), 500
+    
+@app.route('/company_dashboard')
+@login_required
+@company_required
+def company_dashboard():
+    company_name = session.get('username')
+    try:
+        # Fetch properties for the specific company
+        props_result = supabase.table("properties_tbl").select("*").eq("developer_name", company_name).execute()
+        properties = props_result.data if props_result.data else []
+        return render_template("company_dashboard.html", properties=properties, company_name=company_name)
+    except Exception as e:
+        flash("Error loading company dashboard.", "error")
+        print(f"Company dashboard error: {e}")
+        return render_template("company_dashboard.html", properties=[], company_name=company_name)
+
+@app.route('/company/add_property', methods=['GET', 'POST'])
+@login_required
+@company_required
+def company_add_property():
+    if request.method == 'POST':
+        data = {
+            "property_no": request.form['property_no'],
+            "building_no": request.form['building_no'],
+            "bedrooms": request.form['bedrooms'],
+            "rent_price": request.form['rent_price'],
+            "bin_bex": request.form['bin_bex'],
+            "unit_type": request.form['unit_type'],
+            "unit_no": request.form['unit_no'],
+            "status": request.form['status'],
+            "developer_name": session.get('username'),  # Automatically set developer name
+            "location": request.form['location']
+        }
+        try:
+            supabase.table("properties_tbl").insert(data).execute()
+            flash("Property added successfully", "success")
+            return redirect(url_for('company_dashboard'))
+        except Exception as e:
+            flash("Error adding property", "error")
+            print(f"Add property error: {e}")
+    
+    return render_template('company_add_property.html')
+
+
+@app.route('/company/upload_properties', methods=['POST'])
+@login_required
+@company_required
+def upload_properties():
+    if 'property_file' not in request.files:
+        flash('No file part', 'error')
+        return redirect(url_for('company_dashboard'))
+    
+    file = request.files['property_file']
+
+    if file.filename == '':
+        flash('No selected file', 'error')
+        return redirect(url_for('company_dashboard'))
+
+    if file:
+        try:
+            filename = file.filename
+            if filename.endswith('.csv'):
+                df = pd.read_csv(file)
+            elif filename.endswith('.xls') or filename.endswith('.xlsx'):
+                df = pd.read_excel(file)
+            else:
+                flash('Unsupported file format. Please upload a CSV or Excel file.', 'error')
+                return redirect(url_for('company_dashboard'))
+
+            # Assuming the excel/csv has columns matching the database table
+            # And we need to add the developer_name
+            df['developer_name'] = session.get('username')
+            
+            # Convert DataFrame to list of dictionaries
+            properties_to_upload = df.to_dict(orient='records')
+            
+            # Insert data into Supabase
+            supabase.table("properties_tbl").insert(properties_to_upload).execute()
+            
+            flash(f'{len(properties_to_upload)} properties uploaded successfully!', 'success')
+
+        except Exception as e:
+            flash(f'An error occurred during file upload: {e}', 'error')
+            print(f"File upload error: {e}")
+
+    return redirect(url_for('company_dashboard'))
 
 @app.errorhandler(404)
 def page_not_found(e):

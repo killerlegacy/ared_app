@@ -21,6 +21,7 @@
             <select id="role" name="role" required>
                 <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
                 <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                <option value="developer" {% if user.role == 'developer' %}selected{% endif %}>Developer</option>
             </select>
             
             <button type="submit">Update User</button>
