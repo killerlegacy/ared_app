@@ -94,12 +94,12 @@ def logout():
 @login_required
 def dashboard():
     # Get all data from Supabase
-    result = supabase.table("tbl_data").select("*").execute()
+    result = supabase.table("properties_tbl").select("*").execute()
     raw_data = result.data
     
     data = pd.DataFrame(raw_data)
     locations = data['location'].dropna().unique().tolist() if 'location' in data.columns else []
-    companies = data['company_name'].dropna().unique().tolist() if 'company_name' in data.columns else []
+    companies = data['developer_name'].dropna().unique().tolist() if 'developer_name' in data.columns else []
 
     items_per_page = 50  
     page = int(request.args.get('page', 1))  
@@ -107,16 +107,16 @@ def dashboard():
     if request.method == 'POST':
         
         selected_location = request.form.get('location', '')
-        selected_company = request.form.get('company_name', '')
+        selected_company = request.form.get('developer_name', '')
 
     else:
         selected_location = request.args.get('location', '')
-        selected_company = request.args.get('company_name', '')
+        selected_company = request.args.get('developer_name', '')
  
     if selected_location:
         data = data[data['location'].str.contains(selected_location, case=False, na=False)]
     if selected_company:
-        data = data[data['company_name'].str.contains(selected_company, case=False, na=False)]
+        data = data[data['developer_name'].str.contains(selected_company, case=False, na=False)]
 
     total_items = len(data)  
     total_pages = max(1, ceil(total_items / items_per_page))
@@ -150,7 +150,7 @@ def admin_dashboard():
         users = users_result.data if users_result.data else []
 
         # Get all properties
-        props_result = supabase.table("tbl_data").select("id, property_name, unit_no, bedrooms, type, location, rent_price, company_name, status").execute()
+        props_result = supabase.table("properties_tbl").select("*").execute()
         properties = props_result.data if props_result.data else []
 
         # Get error logs
@@ -213,7 +213,7 @@ def edit_user(user_id):
             print(f"Edit user error: {e}")
 
     # Get user data
-    user_result = supabase.table("tbl_users").select("username, email, role").eq("id", user_id).execute()
+    user_result = supabase.table("tbl_users").select("id, username, email, role").eq("id", user_id).execute()
     user = user_result.data[0] if user_result.data else None
 
     return render_template('edit_user.html', user=user)
@@ -237,18 +237,20 @@ def delete_user(user_id):
 def add_property():
     if request.method == 'POST':
         data = {
-            "property_name": request.form['property_name'],
-            "unit_no": request.form['unit_no'],
-            "location": request.form['location'],
-            "bedrooms": request.form['bedrooms'],
-            "type": request.form["type"],
-            "rent_price": request.form['rent_price'],
-            "company_name": request.form['company_name'],
-            "status": request.form['status']
-        }
+        "property_no": request.form['property_no'],
+        "building_no": request.form['building_no'],
+        "bedrooms": request.form['bedrooms'],
+        "rent_price": request.form['rent_price'],
+        "bin_bex": request.form['bin_bex'],
+        "unit_type": request.form['unit_type'],  # FF / SF / UF
+        "unit_no": request.form['unit_no'],
+        "status": request.form['status'],
+        "developer_name": request.form['developer_name'],
+        "location": request.form['location']
+}
 
         try:
-            supabase.table("tbl_data").insert(data).execute()
+            supabase.table("properties_tbl").insert(data).execute()
             flash("Property added successfully", "success")
             return redirect(url_for('admin_dashboard'))
         except Exception as e:
@@ -265,16 +267,22 @@ def add_property():
 def update_property_inline():
     data = request.json  # Receive data as JSON
     property_id = data.get('id')
-    property_name = data.get('property_name')
-    unit_no = data.get('unit_no')
-    location = data.get('location')
-    bedrooms = data.get('bedrooms')
-    type = data.get('type')
-    rent_price = data.get('rent_price')
-    status = data.get('status')
-    
+
+    updated_data = {
+        "property_no": data.get('property_no'),
+        "building_no": data.get('building_no'),
+        "bedrooms": data.get('bedrooms'),
+        "rent_price": data.get('rent_price'),
+        "bin_bex": data.get('bin_bex'),
+        "unit_type": data.get('unit_type'),  # FF / SF / UF
+        "unit_no": data.get('unit_no'),
+        "status": data.get('status'),
+        "developer_name": data.get('developer_name'),
+        "location": data.get('location')
+    }
+
     try:
-        supabase.table("tbl_data").update(data).eq("id", property_id).execute()
+        supabase.table("properties_tbl").update(updated_data).eq("id", property_id).execute()
         return jsonify({'success': True, 'message': 'Property updated successfully.'}), 200
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
@@ -284,7 +292,7 @@ def update_property_inline():
 @admin_required
 def delete_property_inline(property_id):
     try:
-        supabase.table("tbl_data").delete().eq("id", property_id).execute()
+        supabase.table("properties_tbl").delete().eq("id", property_id).execute()
         return jsonify({'success': True, 'message': 'Property deleted successfully.'}), 200
     except Exception as e:
         print(f"Error deleting property: {e}")

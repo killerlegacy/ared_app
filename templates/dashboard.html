@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +30,7 @@
                 <select name="location" class="form-select">
                     <option value="" selected>Choose Location</option>
                     {% for loc in locations %}
-                    <option value="{{ loc }}" {% if loc == selected_location %}selected{% endif %}>{{ loc }}</option>
+                    <option value="{{ loc }}" {% if loc==selected_location %}selected{% endif %}>{{ loc }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -37,7 +38,8 @@
                 <select name="company_name" class="form-select">
                     <option value="" selected>Choose Company</option>
                     {% for company in companies %}
-                    <option value="{{ company }}" {% if company == selected_company %}selected{% endif %}>{{ company }}</option>
+                    <option value="{{ company }}" {% if company==selected_company %}selected{% endif %}>{{ company }}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
@@ -53,33 +55,38 @@
         <table class="table table-striped table-hover">
             <thead class="table-dark">
                 <tr>
-                    <th>Property Name</th>
-                    <th>Unit No</th>
+                    <th>Property No</th>
+                    <th>Building No</th>
                     <th>Bedrooms</th>
-                    <th>Type</th>
-                    <th>Location</th>
                     <th>Rent Price</th>
-                    <th>Status</th>
-                    <th>Company Name</th>
+                    <th>Bin/Bex</th>
+                    <th>Unit Type</th>
+                    <th>Unit No</th>
+                    <th>Status</th>  
+                    <th>Developer</th>
+                    <th>Location</th>
                 </tr>
             </thead>
             <tbody>
                 {% for row in data %}
                 <tr>
-                    <td>{{ row['property_name'] }}</td>
-                    <td>{{ row['unit_no'] }}</td>
+                    <td>{{ row['property_no'] }}</td>
+                    <td>{{ row['building_no'] }}</td>
                     <td>{{ row['bedrooms'] }}</td>
-                    <td>{{ row['type'] }}</td>
-                    <td>{{ row['location'] }}</td>
                     <td>{{ row['rent_price'] }}</td>
+                    <td>{{ row['bin_bex'] }}</td>
+                    <td>{{ row['unit_type'] }}</td>
+                    <td>{{ row['unit_no'] }}</td>
                     <td class="{% if row['status'] == 'Vacant' %}status-vacant
-                            {% elif row['status'] == 'Booked' %}status-booked
-                            {% elif row['status'] == 'Hold' %}status-hold
-                            {% elif row['status'] == 'Contracted' %}status-contracted
-                            {% else %}status-default{% endif %}">
+                        {% elif row['status'] == 'Booked' %}status-booked
+                        {% elif row['status'] == 'Hold' %}status-hold
+                        {% elif row['status'] == 'Contracted' %}status-contracted
+                        {% else %}status-default{% endif %}">
                         {{ row['status'] }}
                     </td>
-                    <td>{{ row['company_name'] }}</td>
+                    
+                    <td>{{ row['developer_name'] }}</td>
+                    <td>{{ row['location'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -90,22 +97,27 @@
             <ul class="pagination justify-content-center">
                 <!-- Previous button -->
                 <li class="page-item {% if current_page <= 1 %}disabled{% endif %}">
-                    <a class="page-link" href="/dashboard?page={{ current_page - 1 }}&location={{ selected_location }}&company_name={{ selected_company }}">Previous</a>
+                    <a class="page-link"
+                        href="/dashboard?page={{ current_page - 1 }}&location={{ selected_location }}&company_name={{ selected_company }}">Previous</a>
                 </li>
-                
+
                 <!-- Page numbers -->
                 {% for page in pages %}
                 <li class="page-item {% if page == current_page %}active{% endif %}">
-                    <a class="page-link" href="/dashboard?page={{ page }}&location={{ selected_location }}&company_name={{ selected_company }}">{{ page }}</a>
+                    <a class="page-link"
+                        href="/dashboard?page={{ page }}&location={{ selected_location }}&company_name={{ selected_company }}">{{
+                        page }}</a>
                 </li>
                 {% endfor %}
-                
+
                 <!-- Next button -->
                 <li class="page-item {% if current_page >= total_pages %}disabled{% endif %}">
-                    <a class="page-link" href="/dashboard?page={{ current_page + 1 }}&location={{ selected_location }}&company_name={{ selected_company }}">Next</a>
+                    <a class="page-link"
+                        href="/dashboard?page={{ current_page + 1 }}&location={{ selected_location }}&company_name={{ selected_company }}">Next</a>
                 </li>
             </ul>
-        </nav>        
+        </nav>
     </div>
 </body>
+
 </html>

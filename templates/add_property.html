@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,40 +8,53 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
+
 <body>
     <div class="container">
         <h1>Add New Property</h1>
         <form action="/admin/add_property" method="POST">
-            <label for="property_name">Property Name</label>
-            <input type="text" id="property_name" name="property_name" placeholder="Enter property name" required>
-            
-            <label for="unit_no">Unit No</label>
-            <input type="text" id="unit_no" name="unit_no" placeholder="Enter Unit no" required>
+            <label for="property_no">Property No</label>
+            <input type="text" id="property_no" name="property_no" placeholder="Enter Property No" required>
+
+            <label for="building_no">Building No</label>
+            <input type="text" id="building_no" name="building_no" placeholder="Enter Building No" required>
 
             <label for="bedrooms">Bedrooms</label>
-            <input type="text" id="bedrooms" name="bedrooms" placeholder="Number of bedrooms" required>
+            <input type="number" id="bedrooms" name="bedrooms" placeholder="Number of bedrooms" required>
 
-            <label for="type">Type</label>
-            <input type="text" id="type" name="type" placeholder="FF/UF/SF" required>
-
-            <label for="location">Location</label>
-            <input type="text" id="location" name="location" placeholder="Enter location" required>
-                      
             <label for="rent_price">Rent Price</label>
             <input type="number" id="rent_price" name="rent_price" placeholder="Rent price" required>
 
-            <label for="company_name">Company Name</label>
-            <input type="text" id="company_name" name="company_name" placeholder="Enter Company Name" required>
-            
+            <label for="bin_bex">Bin/Bex</label>
+            <input type="text" id="bin_bex" name="bin_bex" placeholder="Enter Bin/Bex" required>
+
+            <label for="unit_type">Type</label>
+            <select id="unit_type" name="unit_type" required>
+                <option value="">Select Type</option>
+                <option value="FF">FF </option>
+                <option value="SF">SF </option>
+                <option value="UF">UF </option>
+            </select>
+
+            <label for="unit_no">Unit No</label>
+            <input type="text" id="unit_no" name="unit_no" placeholder="Enter Unit No" required>
+
             <label for="status">Status</label>
             <select id="status" name="status" required>
                 <option value="Available">Available</option>
                 <option value="Rented">Rented</option>
             </select>
-            
+
+            <label for="developer_name">Developer / Company Name</label>
+            <input type="text" id="developer_name" name="developer_name" placeholder="Enter Company Name" required>
+
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" placeholder="Enter location" required>
+
             <button type="submit">Add Property</button>
         </form>
         <a href="/admin" class="btn">Back to Manage Properties</a>
     </div>
 </body>
+
 </html>
