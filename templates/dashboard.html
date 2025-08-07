@@ -24,30 +24,66 @@
     <div class="container mt-4">
         <h2 class="mb-3">Properties List</h2> </br>
 
-        <!-- Filter Form -->
         <form method="POST" action="/dashboard" class="row g-3 mb-4">
-            <div class="col-md-3">
+            <!-- Location -->
+            <div class="col-md-2">
                 <select name="location" class="form-select">
-                    <option value="" selected>Choose Location</option>
+                    <option value="">Choose Location</option>
                     {% for loc in locations %}
                     <option value="{{ loc }}" {% if loc==selected_location %}selected{% endif %}>{{ loc }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-md-3">
-                <select name="company_name" class="form-select">
-                    <option value="" selected>Choose Company</option>
-                    {% for company in companies %}
-                    <option value="{{ company }}" {% if company==selected_company %}selected{% endif %}>{{ company }}
-                    </option>
+
+            <!-- Bedrooms -->
+            <div class="col-md-2">
+                <select name="bedrooms" class="form-select">
+                    <option value="">Choose Bedrooms</option>
+                    {% for bed in bedrooms %}
+                    <option value="{{ bed }}" {% if bed==selected_bedrooms %}selected{% endif %}>{{ bed }}</option>
                     {% endfor %}
                 </select>
             </div>
+
+            <!-- Rent Price -->
             <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                <select name="rent_price" class="form-select">
+                    <option value="">Choose Price Range</option>
+                    <option value="0-3000" {% if selected_rent_price=='0-3000' %}selected{% endif %}>Under 3,000
+                    </option>
+                    <option value="3000-5000" {% if selected_rent_price=='3000-5000' %}selected{% endif %}>3,000 - 5,000
+                    </option>
+                    <option value="5000-10000" {% if selected_rent_price=='5000-10000' %}selected{% endif %}>5,000 -
+                        10,000</option>
+                    <option value="10000+" {% if selected_rent_price=='10000+' %}selected{% endif %}>10,000+</option>
+                </select>
             </div>
+
+            <!-- Bin/Bex -->
             <div class="col-md-2">
-                <a href="/dashboard" class="btn btn-secondary w-100">Clear Filters</a>
+                <select name="bin_bex" class="form-select">
+                    <option value="">Choose Bin/Bex</option>
+                    <option value="Bin" {% if selected_bin_bex=='Bin' %}selected{% endif %}>Bin</option>
+                    <option value="Bex" {% if selected_bin_bex=='Bex' %}selected{% endif %}>Bex</option>
+                </select>
+            </div>
+
+            <!-- Unit Type -->
+            <div class="col-md-2">
+                <select name="unit_type" class="form-select">
+                    <option value="">Choose Unit Type</option>
+                    {% for unit in unit_types %}
+                    <option value="{{ unit }}" {% if unit==selected_unit_type %}selected{% endif %}>{{ unit }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">Apply</button>
+            </div>
+            <div class="col-md-1">
+                <a href="/dashboard" class="btn btn-secondary w-100">Clear</a>
             </div>
         </form>
 
@@ -62,7 +98,7 @@
                     <th>Bin/Bex</th>
                     <th>Unit Type</th>
                     <th>Unit No</th>
-                    <th>Status</th>  
+                    <th>Status</th>
                     <th>Developer</th>
                     <th>Location</th>
                 </tr>
@@ -73,7 +109,7 @@
                     <td>{{ row['property_no'] }}</td>
                     <td>{{ row['building_no'] }}</td>
                     <td>{{ row['bedrooms'] }}</td>
-                    <td>{{ row['rent_price'] }}</td>
+                    <td>{{ row['rent_price'] | int }}</td>
                     <td>{{ row['bin_bex'] }}</td>
                     <td>{{ row['unit_type'] }}</td>
                     <td>{{ row['unit_no'] }}</td>
@@ -84,7 +120,7 @@
                         {% else %}status-default{% endif %}">
                         {{ row['status'] }}
                     </td>
-                    
+
                     <td>{{ row['developer_name'] }}</td>
                     <td>{{ row['location'] }}</td>
                 </tr>

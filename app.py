@@ -1,6 +1,4 @@
 from flask import Flask, render_template, redirect, url_for, request, session, flash, jsonify
-# import mysql.connector
-from flask_mysqldb import MySQL
 from supabase import create_client, Client
 import pandas as pd
 from math import ceil
@@ -9,7 +7,7 @@ import bcrypt
 from datetime import datetime
 from dotenv import load_dotenv
 import os
-from MySQLdb.cursors import DictCursor
+
 
 app = Flask(__name__)
 
@@ -93,32 +91,57 @@ def logout():
 @app.route('/dashboard', methods=['GET', 'POST'])
 @login_required
 def dashboard():
-    # Get all data from Supabase
+    # Fetch data
     result = supabase.table("properties_tbl").select("*").execute()
     raw_data = result.data
-    
     data = pd.DataFrame(raw_data)
+
+    # Dropdown list data
     locations = data['location'].dropna().unique().tolist() if 'location' in data.columns else []
     companies = data['developer_name'].dropna().unique().tolist() if 'developer_name' in data.columns else []
+    bedrooms = data['bedrooms'].dropna().unique().tolist() if 'bedrooms' in data.columns else []
+    unit_types = data['unit_type'].dropna().unique().tolist() if 'unit_type' in data.columns else []
 
+    # Pagination
     items_per_page = 50  
     page = int(request.args.get('page', 1))  
 
+    # Filters
     if request.method == 'POST':
-        
         selected_location = request.form.get('location', '')
-        selected_company = request.form.get('developer_name', '')
-
+        selected_bedrooms = request.form.get('bedrooms', '')
+        selected_rent_price = request.form.get('rent_price', '')
+        selected_bin_bex = request.form.get('bin_bex', '')
+        selected_unit_type = request.form.get('unit_type', '')
     else:
         selected_location = request.args.get('location', '')
-        selected_company = request.args.get('developer_name', '')
- 
+        selected_bedrooms = request.args.get('bedrooms', '')
+        selected_rent_price = request.args.get('rent_price', '')
+        selected_bin_bex = request.args.get('bin_bex', '')
+        selected_unit_type = request.args.get('unit_type', '')
+
+    # Apply filters
     if selected_location:
         data = data[data['location'].str.contains(selected_location, case=False, na=False)]
-    if selected_company:
-        data = data[data['developer_name'].str.contains(selected_company, case=False, na=False)]
+    if selected_bedrooms:
+        data = data[data['bedrooms'].astype(str) == selected_bedrooms]
+    if selected_rent_price:
+        data['rent_price'] = pd.to_numeric(data['rent_price'], errors='coerce')
+        if selected_rent_price == '0-3000':
+            data = data[data['rent_price'] <= 3000]
+        elif selected_rent_price == '3000-5000':
+            data = data[(data['rent_price'] > 3000) & (data['rent_price'] <= 5000)]
+        elif selected_rent_price == '5000-10000':
+            data = data[(data['rent_price'] > 5000) & (data['rent_price'] <= 10000)]
+        elif selected_rent_price == '10000+':
+            data = data[data['rent_price'] > 10000]
+    if selected_bin_bex:
+        data = data[data['bin_bex'].str.lower() == selected_bin_bex.lower()]
+    if selected_unit_type:
+        data = data[data['unit_type'].str.lower() == selected_unit_type.lower()]
 
-    total_items = len(data)  
+    # Pagination after filtering
+    total_items = len(data)
     total_pages = max(1, ceil(total_items / items_per_page))
     page = max(1, min(page, total_pages))
     start_idx = (page - 1) * items_per_page
@@ -126,14 +149,19 @@ def dashboard():
     paginated_data = data.iloc[start_idx:end_idx]
 
     pages = list(range(1, total_pages + 1))
-    
+
     return render_template(
         'dashboard.html',
         data=paginated_data.to_dict('records'),
         locations=locations,
         companies=companies,
+        bedrooms=bedrooms,
+        unit_types=unit_types,
         selected_location=selected_location,
-        selected_company=selected_company,
+        selected_bedrooms=selected_bedrooms,
+        selected_rent_price=selected_rent_price,
+        selected_bin_bex=selected_bin_bex,
+        selected_unit_type=selected_unit_type,
         pages=pages,
         total_pages=total_pages,
         current_page=page
@@ -154,7 +182,7 @@ def admin_dashboard():
         properties = props_result.data if props_result.data else []
 
         # Get error logs
-        errors_result = supabase.table("error_logs").select("id, error_message, timestamp").order("timestamp", desc=True).execute()
+        errors_result = supabase.table("error_logs").select("id, error_code, endpoint, timestamp").order("timestamp", desc=True).execute()
         errors = errors_result.data if errors_result.data else []
 
         return render_template("admin_dashboard.html", users=users, properties=properties, errors=errors)
@@ -305,8 +333,7 @@ def page_not_found(e):
             "error_message": str(e),
             "error_code": 404,
             "endpoint": request.path,
-            "method": request.method,
-            "timestamp": datetime.utcnow().isoformat()
+            "method": request.method
         }).execute()
     except Exception as err:
         print(f"Error logging 404: {err}")
@@ -320,8 +347,7 @@ def internal_server_error(e):
             "error_message": str(e),
             "error_code": 500,
             "endpoint": request.path,
-            "method": request.method,
-            "timestamp": datetime.utcnow().isoformat()
+            "method": request.method
         }).execute()
     except Exception as err:
         print(f"Error logging 500: {err}")
