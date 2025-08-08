@@ -93,6 +93,10 @@ h1, h2 {
     background-color: #bd2130;
 }
 
+td {
+    vertical-align: middle;
+}
+
 td .btn {
     margin: 0;
     padding: 4px 8px; /* Adjust padding for smaller buttons */

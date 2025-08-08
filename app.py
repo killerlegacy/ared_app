@@ -291,7 +291,8 @@ def add_property():
         "unit_no": request.form['unit_no'],
         "status": request.form['status'],
         "developer_name": request.form['developer_name'],
-        "location": request.form['location']
+        "location": request.form['location'],
+        "Maps_link": request.form['Maps_link']
 }
 
         try:
@@ -323,7 +324,8 @@ def update_property_inline():
         "unit_no": data.get('unit_no'),
         "status": data.get('status'),
         "developer_name": data.get('developer_name'),
-        "location": data.get('location')
+        "location": data.get('location'),
+        "Maps_link": data.get('Maps_link')
     }
 
     try:
@@ -373,7 +375,8 @@ def company_add_property():
             "unit_no": request.form['unit_no'],
             "status": request.form['status'],
             "developer_name": session.get('username'),  # Automatically set developer name
-            "location": request.form['location']
+            "location": request.form['location'],
+            "Maps_link": request.form['Maps_link']
         }
         try:
             supabase.table("properties_tbl").insert(data).execute()
