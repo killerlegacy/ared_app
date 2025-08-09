@@ -351,10 +351,31 @@ def delete_property_inline(property_id):
 def company_dashboard():
     company_name = session.get('username')
     try:
-        # Fetch properties for the specific company
-        props_result = supabase.table("properties_tbl").select("*").eq("developer_name", company_name).execute()
+        query = supabase.table("properties_tbl").select("*").eq("developer_name", company_name)
+
+        # Get filter values from query params
+        property_no = request.args.get('property_no', '').strip()
+        building_no = request.args.get('building_no', '').strip()
+        location = request.args.get('location', '').strip()
+
+        if property_no:
+            query = query.ilike("property_no", f"%{property_no}%")
+        if building_no:
+            query = query.ilike("building_no", f"%{building_no}%")
+        if location:
+            query = query.ilike("location", f"%{location}%")
+
+        props_result = query.execute()
         properties = props_result.data if props_result.data else []
-        return render_template("company_dashboard.html", properties=properties, company_name=company_name)
+
+        return render_template(
+            "company_dashboard.html",
+            properties=properties,
+            company_name=company_name,
+            filter_property_no=property_no,
+            filter_building_no=building_no,
+            filter_location=location
+        )
     except Exception as e:
         flash("Error loading company dashboard.", "error")
         print(f"Company dashboard error: {e}")
@@ -431,6 +452,54 @@ def upload_properties():
             print(f"File upload error: {e}")
 
     return redirect(url_for('company_dashboard'))
+
+
+@app.route('/company/get_property/<int:prop_id>', methods=['GET'])
+@login_required
+@company_required
+def get_property(prop_id):
+    try:
+        result = supabase.table("properties_tbl").select("*").eq("id", prop_id).single().execute()
+        return jsonify(result.data)
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e)})
+
+@app.route('/company/update_property', methods=['POST'])
+@login_required
+@company_required
+def update_property():
+    try:
+        prop_id = int(request.form['id'])
+        print(prop_id)
+        update_data = {
+            "property_no": request.form['property_no'],
+            "building_no": request.form['building_no'],
+            "bedrooms": request.form['bedrooms'],
+            "rent_price": request.form['rent_price'],
+            "bin_bex": request.form['bin_bex'],
+            "unit_type": request.form['unit_type'],
+            "unit_no": request.form['unit_no'],
+            "status": request.form['status'],
+            "developer_name": session.get('username'),
+            "location": request.form['location'],
+            "Maps_link": request.form['Maps_link']
+        }
+        supabase.table("properties_tbl").update(update_data).eq("id", prop_id).execute()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route('/company/delete_property/<int:prop_id>', methods=['DELETE'])
+@login_required
+@company_required
+def delete_property(prop_id):
+    try:
+        supabase.table("properties_tbl").delete().eq("id", prop_id).execute()
+        return jsonify({"success": True})
+    except Exception as e:
+        print(e)
+        return jsonify({"success": False})
 
 @app.errorhandler(404)
 def page_not_found(e):

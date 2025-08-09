@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ company_name }} - Company Dashboard</title>
+    <title>{{ company_name }} Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='admin_dashboard_style.css') }}">
 </head>
+
 <body class="bg-gray-50">
     <div class="sidebar d-flex flex-column justify-content-between collapsed" id="sidebar">
         <div>
@@ -28,33 +30,62 @@
 
     <div class="main-content expanded" id="mainContent">
         <div class="topbar">
-             <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center">
                 <button class="btn btn-link text-dark me-3" id="sidebarToggle">
                     <i class="bi bi-list fs-4"></i>
                 </button>
                 <h4 class="mb-0">{{ company_name }}'s Dashboard</h4>
             </div>
-             <div class="dropdown">
+            <div class="dropdown">
                 <button class="btn btn-link text-dark" data-bs-toggle="dropdown">
                     <i class="bi bi-person-circle fs-4"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    <li><a class="dropdown-item text-danger" href="/logout"><i
+                                class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
                 </ul>
             </div>
         </div>
 
         <div class="content-area">
             {% with messages = get_flashed_messages(with_categories=true) %}
-              {% if messages %}
-                {% for category, message in messages %}
-                  <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
-                {% endfor %}
-              {% endif %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
             {% endwith %}
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Search Property</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('company_dashboard') }}">
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <input type="text" name="property_no" class="form-control"
+                                    placeholder="Filter by Property No" value="{{ filter_property_no or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="building_no" class="form-control"
+                                    placeholder="Filter by Building No" value="{{ filter_building_no or '' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="text" name="location" class="form-control" placeholder="Filter by Location"
+                                    value="{{ filter_location or '' }}">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">Apply</button>
+                            <a href="{{ url_for('company_dashboard') }}" class="btn btn-secondary">Clear</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             <div class="table-container">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -69,10 +100,15 @@
                         <h5>Upload Properties in Bulk</h5>
                     </div>
                     <div class="card-body">
-                         <p>Upload a CSV or Excel file with your properties. Make sure the column headers match the property fields: <code>property_no</code>, <code>building_no</code>, <code>bedrooms</code>, <code>rent_price</code>, <code>bin_bex</code>, <code>unit_type</code>, <code>unit_no</code>, <code>status</code>, <code>location</code>.</p>
+                        <p>Upload a CSV or Excel file with your properties. Make sure the column headers match the
+                            property fields: <code>property_no</code>, <code>building_no</code>, <code>bedrooms</code>,
+                            <code>rent_price</code>, <code>bin_bex</code>, <code>unit_type</code>, <code>unit_no</code>,
+                            <code>status</code>, <code>location</code>.
+                        </p>
                         <form action="{{ url_for('upload_properties') }}" method="post" enctype="multipart/form-data">
                             <div class="input-group">
-                                <input type="file" class="form-control" name="property_file" id="property_file" required>
+                                <input type="file" class="form-control" name="property_file" id="property_file"
+                                    required>
                                 <button class="btn btn-primary" type="submit">Upload</button>
                             </div>
                         </form>
@@ -89,17 +125,24 @@
                                 <th>Bedrooms</th>
                                 <th>Rent Price</th>
                                 <th>Location</th>
-                                </tr>
+                                <th>Actions</th>
+                            </tr>
                         </thead>
                         <tbody>
                             {% for property in properties %}
-                            <tr>
+                            <tr data-id="{{ property.id }}">
                                 <td>{{ loop.index }}</td>
                                 <td>{{ property.property_no }}</td>
                                 <td>{{ property.building_no }}</td>
                                 <td>{{ property.bedrooms }}</td>
                                 <td>{{ property.rent_price }}</td>
                                 <td>{{ property.location }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary edit-btn"><i
+                                            class="bi bi-pencil-square"></i></button>
+                                    <button class="btn btn-sm btn-danger delete-btn"><i
+                                            class="bi bi-trash"></i></button>
+                                </td>
                             </tr>
                             {% else %}
                             <tr>
@@ -108,6 +151,85 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Edit Modal -->
+                <div class="modal fade" id="editModal" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Property</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="editPropertyForm">
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <label>Property No</label>
+                                            <input type="text" class="form-control" name="property_no"
+                                                id="edit_property_no" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Building No</label>
+                                            <input type="text" class="form-control" name="building_no"
+                                                id="edit_building_no" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Bedrooms</label>
+                                            <input type="number" class="form-control" name="bedrooms" id="edit_bedrooms"
+                                                required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Rent Price</label>
+                                            <input type="number" class="form-control" name="rent_price"
+                                                id="edit_rent_price" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Area</label>
+                                            <input type="text" class="form-control" name="location" id="edit_location"
+                                                required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Google Maps Link</label>
+                                            <input type="text" class="form-control" name="Maps_link"
+                                                id="edit_Maps_link">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Bin/Bex</label>
+                                            <select class="form-select" name="bin_bex" id="edit_bin_bex">
+                                                <option value="Bin">Bin</option>
+                                                <option value="Bex">Bex</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Unit Type</label>
+                                            <select class="form-select" name="unit_type" id="edit_unit_type">
+                                                <option value="FF">FF</option>
+                                                <option value="SF">SF</option>
+                                                <option value="UF">UF</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Unit Number</label>
+                                            <input type="text" class="form-control" name="unit_no" id="edit_unit_no">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label>Status</label>
+                                            <select class="form-select" name="status" id="edit_status">
+                                                <option value="Vacant">Vacant</option>
+                                                <option value="Booked">Booked</option>
+                                                <option value="Hold">Hold</option>
+                                                <option value="Contracted">Contracted</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button type="submit" class="btn btn-success">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -149,6 +271,92 @@
                 }
             });
         });
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const filterInputs = ["filterPropertyNo", "filterBuildingNo", "filterLocation"];
+            filterInputs.forEach(id => {
+                document.getElementById(id).addEventListener("keyup", function () {
+                    const propVal = document.getElementById("filterPropertyNo").value.toLowerCase();
+                    const buildVal = document.getElementById("filterBuildingNo").value.toLowerCase();
+                    const locVal = document.getElementById("filterLocation").value.toLowerCase();
+                    document.querySelectorAll("#propertiesTable tbody tr").forEach(row => {
+                        const pNo = row.cells[1].innerText.toLowerCase();
+                        const bNo = row.cells[2].innerText.toLowerCase();
+                        const loc = row.cells[5].innerText.toLowerCase();
+                        row.style.display = (pNo.includes(propVal) && bNo.includes(buildVal) && loc.includes(locVal)) ? "" : "none";
+                    });
+                });
+            });
+
+            document.querySelector("#propertiesTable tbody").addEventListener("click", function (e) {
+                if (e.target.closest(".edit-btn")) {
+                    const row = e.target.closest("tr");
+                    // Handle edit
+                }
+                if (e.target.closest(".delete-btn")) {
+                    const row = e.target.closest("tr");
+                    // Handle delete
+                }
+            });
+
+            let currentEditId = null; // store the ID temporarily
+            // Edit button click
+            document.querySelectorAll(".edit-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    const row = this.closest("tr");
+                    currentEditId = row.dataset.id;
+
+                    // Fetch full property data from server to fill modal
+                    fetch(`/company/get_property/${currentEditId}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            document.getElementById("edit_property_no").value = data.property_no;
+                            document.getElementById("edit_building_no").value = data.building_no;
+                            document.getElementById("edit_bedrooms").value = data.bedrooms;
+                            document.getElementById("edit_rent_price").value = data.rent_price;
+                            document.getElementById("edit_location").value = data.location;
+                            document.getElementById("edit_Maps_link").value = data.Maps_link || "";
+                            document.getElementById("edit_bin_bex").value = data.bin_bex;
+                            document.getElementById("edit_unit_type").value = data.unit_type;
+                            document.getElementById("edit_unit_no").value = data.unit_no || "";
+                            document.getElementById("edit_status").value = data.status;
+                            new bootstrap.Modal(document.getElementById("editModal")).show();
+                        });
+                });
+            });
+
+            // Save changes via AJAX
+            document.getElementById("editPropertyForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+                formData.append("id", currentEditId);
+
+                fetch("/company/update_property", {
+                    method: "POST",
+                    body: formData
+                }).then(res => res.json()).then(data => {
+                    if (data.success) location.reload();
+                    else alert("Error updating property: " + (data.error || ""));
+                });
+            });
+
+            // Delete button click
+            document.querySelectorAll(".delete-btn").forEach(btn => {
+                btn.addEventListener("click", function () {
+                    if (confirm("Are you sure you want to delete this property?")) {
+                        const id = this.closest("tr").dataset.id;
+                        fetch(`/company/delete_property/${id}`, { method: "DELETE" })
+                            .then(res => res.json()).then(data => {
+                                if (data.success) location.reload();
+                                else alert("Error deleting property");
+                            });
+                    }
+                });
+            });
+        });
     </script>
 </body>
+
 </html>
